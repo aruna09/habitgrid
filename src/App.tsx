@@ -300,7 +300,7 @@ export default function App() {
           <div className="flex flex-col gap-2">
             <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>No habits yet</p>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              Add habits to start filling your grid. The more you do, the greener it gets.
+              Your grid is looking a little empty. Add a habit and give it something to brag about.
             </p>
           </div>
         </div>
