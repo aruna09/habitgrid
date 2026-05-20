@@ -1,4 +1,4 @@
-import { Logs, Habit, formatDate, getConsolidatedDayColor, hexToRgb } from '../store'
+import { Logs, Habit, formatDate, getConsolidatedDayColor } from '../store'
 
 type Period = 'current' | number
 
@@ -11,7 +11,7 @@ interface MonthBlock {
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function buildBlock(year: number, month: number, todayStr: string): MonthBlock {
+function buildBlock(year: number, month: number): MonthBlock {
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const startDow = new Date(year, month, 1).getDay()
   const numCols = Math.ceil((startDow + daysInMonth) / 7)
@@ -34,16 +34,15 @@ function buildBlock(year: number, month: number, todayStr: string): MonthBlock {
 
 function buildBlocks(period: Period): MonthBlock[] {
   const today = new Date()
-  const todayStr = formatDate(today)
   const blocks: MonthBlock[] = []
   if (period === 'current') {
     for (let i = 11; i >= 0; i--) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1)
-      blocks.push(buildBlock(d.getFullYear(), d.getMonth(), todayStr))
+      blocks.push(buildBlock(d.getFullYear(), d.getMonth()))
     }
   } else {
     for (let m = 0; m < 12; m++) {
-      blocks.push(buildBlock(period as number, m, todayStr))
+      blocks.push(buildBlock(period as number, m))
     }
   }
   return blocks

@@ -37,7 +37,6 @@ function buildMonthCells(year: number, month: number): (boolean | null)[] {
 export default function SplashScreen({ onDone, accentColor }: Props) {
   const now = new Date()
   const cells = buildMonthCells(now.getFullYear(), now.getMonth())
-  const numCols = cells.length / 7
 
   const [levels, setLevels] = useState<number[]>(() =>
     cells.map((c) => (c ? randLevel() : 0))

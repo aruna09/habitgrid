@@ -14,7 +14,7 @@ const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 type Cell = { date: string; isFuture: boolean } | null
 
-function buildMonthBlock(year: number, month: number, todayStr: string) {
+function buildMonthBlock(year: number, month: number) {
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const startDow = new Date(year, month, 1).getDay()
   const numCols = Math.ceil((startDow + daysInMonth) / 7)
@@ -42,17 +42,16 @@ export default function HabitGrid({ habitId, period, accentColor }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const today = new Date()
-  const todayStr = formatDate(today)
 
   const blocks = []
   if (period === 'current') {
     for (let i = 12; i >= 0; i--) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1)
-      blocks.push(buildMonthBlock(d.getFullYear(), d.getMonth(), todayStr))
+      blocks.push(buildMonthBlock(d.getFullYear(), d.getMonth()))
     }
   } else {
     for (let m = 0; m < 12; m++) {
-      blocks.push(buildMonthBlock(period as number, m, todayStr))
+      blocks.push(buildMonthBlock(period as number, m))
     }
   }
 
