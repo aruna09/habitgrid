@@ -122,6 +122,7 @@ export default function HabitGrid({ habitId, period, accentColor, onToggle }: Pr
                         ? 'transparent'
                         : getHabitDayColor(logs, habitId, cell.date, accentColor)
                       const isYesterday = cell.date === yesterdayStr
+                      const yesterdayLogged = isYesterday && !!logs[cell.date]?.[habitId]
                       return (
                         <div
                           key={ri}
@@ -134,7 +135,7 @@ export default function HabitGrid({ habitId, period, accentColor, onToggle }: Pr
                             backgroundColor: color,
                             borderRadius: '3px',
                             cursor: isYesterday && onToggle ? 'pointer' : 'default',
-                            outline: isYesterday ? `1.5px solid var(--accent)` : 'none',
+                            outline: isYesterday && !yesterdayLogged ? `1.5px solid var(--accent)` : 'none',
                             outlineOffset: '1px',
                             opacity: isYesterday ? 1 : undefined,
                           }}
