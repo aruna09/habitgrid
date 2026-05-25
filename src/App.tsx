@@ -23,11 +23,13 @@ function HamburgerIcon() {
 function HabitCard({
   habitId,
   name,
+  createdAt,
   period,
   accentColor,
 }: {
   habitId: string
   name: string
+  createdAt: string
   period: Period
   accentColor: string
 }) {
@@ -91,7 +93,19 @@ function HabitCard({
         </div>
       </div>
 
-      <HabitGrid habitId={habitId} period={period} accentColor={accentColor} onToggle={period === 'current' ? (date) => toggleLog(date, habitId) : undefined} />
+      <HabitGrid
+        habitId={habitId}
+        period={period}
+        accentColor={accentColor}
+        onToggle={(() => {
+          if (period !== 'current') return undefined
+          const yesterday = new Date()
+          yesterday.setDate(yesterday.getDate() - 1)
+          const yesterdayStr = formatDate(yesterday)
+          const habitCreatedDate = createdAt.slice(0, 10)
+          return habitCreatedDate <= yesterdayStr ? (date: string) => toggleLog(date, habitId) : undefined
+        })()}
+      />
     </div>
   )
 }
@@ -249,6 +263,7 @@ export default function App() {
               key={habit.id}
               habitId={habit.id}
               name={habit.name}
+              createdAt={habit.createdAt}
               period={period}
               accentColor={accentColor}
             />
