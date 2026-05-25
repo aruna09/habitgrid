@@ -7,6 +7,7 @@ interface Props {
   habitId: string
   period: Period
   accentColor: string
+  onToggle?: (date: string) => void
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -37,11 +38,14 @@ function buildMonthBlock(year: number, month: number) {
   return { label: MONTH_NAMES[month], columns }
 }
 
-export default function HabitGrid({ habitId, period, accentColor }: Props) {
+export default function HabitGrid({ habitId, period, accentColor, onToggle }: Props) {
   const { logs } = useStore()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = period === 'current' ? formatDate(yesterday) : null
 
   const blocks = []
   if (period === 'current') {
@@ -117,16 +121,22 @@ export default function HabitGrid({ habitId, period, accentColor }: Props) {
                       const color = cell.isFuture
                         ? 'transparent'
                         : getHabitDayColor(logs, habitId, cell.date, accentColor)
+                      const isYesterday = cell.date === yesterdayStr
                       return (
                         <div
                           key={ri}
-                          title={cell.date}
+                          title={isYesterday ? 'Tap to log yesterday' : cell.date}
+                          onClick={isYesterday && onToggle ? () => onToggle(cell.date) : undefined}
                           style={{
                             width: CELL,
                             height: CELL,
                             flexShrink: 0,
                             backgroundColor: color,
                             borderRadius: '3px',
+                            cursor: isYesterday && onToggle ? 'pointer' : 'default',
+                            outline: isYesterday ? `1.5px solid var(--accent)` : 'none',
+                            outlineOffset: '1px',
+                            opacity: isYesterday ? 1 : undefined,
                           }}
                         />
                       )

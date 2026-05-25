@@ -91,7 +91,7 @@ function HabitCard({
         </div>
       </div>
 
-      <HabitGrid habitId={habitId} period={period} accentColor={accentColor} />
+      <HabitGrid habitId={habitId} period={period} accentColor={accentColor} onToggle={period === 'current' ? (date) => toggleLog(date, habitId) : undefined} />
     </div>
   )
 }
