@@ -39,7 +39,7 @@ export default function Settings({ onBack }: Props) {
   return (
     <div className="flex flex-col min-h-dvh" style={{ backgroundColor: 'var(--bg)' }}>
       <header
-        className="flex items-center px-4 py-4 border-b"
+        className="flex items-center px-4 py-4 pt-safe-top border-b"
         style={{ borderColor: 'var(--border)' }}
       >
         <button

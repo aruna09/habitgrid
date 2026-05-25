@@ -108,7 +108,7 @@ export default function ConsolidatedView({ period, onBack }: Props) {
     <div className="flex flex-col min-h-dvh" style={{ backgroundColor: 'var(--bg)' }}>
       {/* Header */}
       <header
-        className="flex items-center px-4 py-4 border-b"
+        className="flex items-center px-4 py-4 pt-safe-top border-b"
         style={{ borderColor: 'var(--border)' }}
       >
         <button
