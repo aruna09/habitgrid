@@ -1,5 +1,6 @@
-import { useRef } from 'react'
-import { useStore, Habit } from '../store'
+import { useRef, useState } from 'react'
+import { useStore, Habit, FREE_HABIT_LIMIT } from '../store'
+import UpgradeModal from './UpgradeModal'
 
 interface Props {
   onBack: () => void
@@ -16,10 +17,13 @@ const PRESETS = [
   '#3dc9b0', // teal
 ]
 
+const DEFAULT_COLOR = '#39d353'
+
 export default function Settings({ onBack }: Props) {
-  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor } = useStore()
+  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor, isPro } = useStore()
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   const activeHabits = habits.filter((h) => h.active)
   const isCustom = !PRESETS.includes(accentColor)
@@ -71,45 +75,69 @@ export default function Settings({ onBack }: Props) {
             Grid colour
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-            {PRESETS.map((color) => (
-              <button
-                key={color}
-                onClick={() => setAccentColor(color)}
-                aria-label={color}
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  backgroundColor: color,
-                  border: 'none',
-                  cursor: 'pointer',
-                  outline: accentColor === color ? `3px solid ${color}` : '3px solid transparent',
-                  outlineOffset: '2px',
-                  flexShrink: 0,
-                }}
-              />
-            ))}
+            {PRESETS.map((color) => {
+              const locked = !isPro && color !== DEFAULT_COLOR
+              return (
+                <button
+                  key={color}
+                  onClick={() => locked ? setShowUpgrade(true) : setAccentColor(color)}
+                  aria-label={color}
+                  style={{
+                    width: '30px', height: '30px', borderRadius: '50%',
+                    backgroundColor: color, border: 'none', cursor: 'pointer',
+                    outline: accentColor === color ? `3px solid ${color}` : '3px solid transparent',
+                    outlineOffset: '2px', flexShrink: 0,
+                    position: 'relative', opacity: locked ? 0.4 : 1,
+                  }}
+                >
+                  {locked && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                      style={{ position: 'absolute', bottom: -1, right: -1, background: 'var(--bg)', borderRadius: '50%', padding: 1 }}>
+                      <rect x="1.5" y="4" width="7" height="5" rx="1" fill="currentColor" />
+                      <path d="M3 4V3a2 2 0 014 0v1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                  )}
+                </button>
+              )
+            })}
             {/* Custom colour picker */}
-            <label style={{ cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-              <input
-                type="color"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                style={{ opacity: 0, position: 'absolute', width: 0, height: 0 }}
-              />
-              <div
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  background:
-                    'conic-gradient(hsl(0,100%,60%),hsl(45,100%,60%),hsl(90,100%,60%),hsl(135,100%,60%),hsl(180,100%,60%),hsl(225,100%,60%),hsl(270,100%,60%),hsl(315,100%,60%),hsl(360,100%,60%))',
+            {isPro ? (
+              <label style={{ cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  style={{ opacity: 0, position: 'absolute', width: 0, height: 0 }}
+                />
+                <div style={{
+                  width: '30px', height: '30px', borderRadius: '50%',
+                  background: 'conic-gradient(hsl(0,100%,60%),hsl(45,100%,60%),hsl(90,100%,60%),hsl(135,100%,60%),hsl(180,100%,60%),hsl(225,100%,60%),hsl(270,100%,60%),hsl(315,100%,60%),hsl(360,100%,60%))',
                   outline: isCustom ? '3px solid white' : '3px solid transparent',
                   outlineOffset: '2px',
+                }} />
+              </label>
+            ) : (
+              <button
+                onClick={() => setShowUpgrade(true)}
+                style={{
+                  width: '30px', height: '30px', borderRadius: '50%', border: 'none',
+                  cursor: 'pointer', flexShrink: 0, position: 'relative', opacity: 0.4,
+                  background: 'conic-gradient(hsl(0,100%,60%),hsl(45,100%,60%),hsl(90,100%,60%),hsl(135,100%,60%),hsl(180,100%,60%),hsl(225,100%,60%),hsl(270,100%,60%),hsl(315,100%,60%),hsl(360,100%,60%))',
                 }}
-              />
-            </label>
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  style={{ position: 'absolute', bottom: -1, right: -1, background: 'var(--bg)', borderRadius: '50%', padding: 1, color: 'white' }}>
+                  <rect x="1.5" y="4" width="7" height="5" rx="1" fill="currentColor" />
+                  <path d="M3 4V3a2 2 0 014 0v1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
           </div>
+          {!isPro && (
+            <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>
+              Unlock Pro to access all colours
+            </p>
+          )}
         </div>
 
         {/* Habits */}
@@ -137,9 +165,16 @@ export default function Settings({ onBack }: Props) {
         )}
 
         <p className="text-xs mt-4" style={{ color: 'var(--text-secondary)' }}>
-          {activeHabits.length}/10 habits
+          {isPro ? `${activeHabits.length} habits` : `${activeHabits.length}/${FREE_HABIT_LIMIT} habits — upgrade for unlimited`}
         </p>
       </div>
+
+      {showUpgrade && (
+        <UpgradeModal
+          onClose={() => setShowUpgrade(false)}
+          onUpgrade={() => setShowUpgrade(false)}
+        />
+      )}
     </div>
   )
 }

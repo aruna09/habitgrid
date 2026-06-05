@@ -16,12 +16,16 @@ export interface StreakInfo {
   longest: number
 }
 
+export const FREE_HABIT_LIMIT = 3
+
 interface HabitStore {
   habits: Habit[]
   logs: Logs
   streak: StreakInfo
   accentColor: string
   userName: string
+  isPro: boolean
+  setIsPro: (value: boolean) => void
   addHabit: (name: string, notes?: string) => void
   deleteHabit: (id: string) => void
   reorderHabits: (habits: Habit[]) => void
@@ -85,6 +89,8 @@ export const useStore = create<HabitStore>()(
       streak: { current: 0, longest: 0 },
       accentColor: '#39d353',
       userName: '',
+      isPro: false,
+      setIsPro: (value) => set({ isPro: value }),
 
       addHabit: (name, notes) => {
         const habit: Habit = {

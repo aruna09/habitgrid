@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { useStore, getHabitStats, formatDate } from './store'
+import { useStore, getHabitStats, formatDate, FREE_HABIT_LIMIT } from './store'
 import HabitGrid from './components/HabitGrid'
 import Settings from './components/Settings'
 import Profile from './components/Profile'
 import AddHabitModal from './components/AddHabitModal'
 import SplashScreen from './components/SplashScreen'
 import ConsolidatedView from './components/ConsolidatedView'
+import UpgradeModal from './components/UpgradeModal'
 
 type Screen = 'grid' | 'settings' | 'profile' | 'consolidated'
 type Period = 'current' | number
@@ -111,12 +112,13 @@ function HabitCard({
 }
 
 export default function App() {
-  const { habits, accentColor, userName } = useStore()
+  const { habits, accentColor, userName, isPro } = useStore()
   const [screen, setScreen] = useState<Screen>('grid')
   const [period, setPeriod] = useState<Period>('current')
   const [menuOpen, setMenuOpen] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const activeHabits = habits.filter((h) => h.active)
@@ -270,13 +272,14 @@ export default function App() {
           ))}
           {activeHabits.length >= 2 && (
             <button
-              onClick={() => setScreen('consolidated')}
+              onClick={() => isPro ? setScreen('consolidated') : setShowUpgrade(true)}
               className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium"
               style={{
                 backgroundColor: 'var(--surface)',
                 border: '1px solid var(--border)',
-                color: 'var(--text-secondary)',
+                color: isPro ? 'var(--text-secondary)' : 'var(--text-secondary)',
                 cursor: 'pointer',
+                opacity: isPro ? 1 : 0.6,
               }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -291,6 +294,12 @@ export default function App() {
                 <rect x="11" y="11" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.7" />
               </svg>
               View combined grid
+              {!isPro && (
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ marginLeft: 2 }}>
+                  <rect x="2.5" y="5.5" width="8" height="6" rx="1" stroke="currentColor" strokeWidth="1.2" />
+                  <path d="M4.5 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+              )}
             </button>
           )}
         </div>
@@ -321,8 +330,20 @@ export default function App() {
         </div>
       )}
 
-      <FAB onPress={() => setShowAddModal(true)} />
+      <FAB onPress={() => {
+        if (!isPro && activeHabits.length >= FREE_HABIT_LIMIT) {
+          setShowUpgrade(true)
+        } else {
+          setShowAddModal(true)
+        }
+      }} />
       {showAddModal && <AddHabitModal onClose={() => setShowAddModal(false)} />}
+      {showUpgrade && (
+        <UpgradeModal
+          onClose={() => setShowUpgrade(false)}
+          onUpgrade={() => setShowUpgrade(false)}
+        />
+      )}
     </div>
   )
 }
