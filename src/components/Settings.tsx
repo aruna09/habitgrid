@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
-import { useStore, Habit, FREE_HABIT_LIMIT } from '../store'
+import { useRef, useState, useCallback } from 'react'
+import { useStore, Habit, FREE_HABIT_LIMIT, formatDate } from '../store'
 import UpgradeModal from './UpgradeModal'
+import { exportBackup, importBackup, daysSinceBackup } from '../utils/backup'
 
 interface Props {
   onBack: () => void
@@ -20,10 +21,33 @@ const PRESETS = [
 const DEFAULT_COLOR = '#39d353'
 
 export default function Settings({ onBack }: Props) {
-  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor, isPro } = useStore()
+  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor, isPro, lastBackedUp, setLastBackedUp } = useStore()
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExport = useCallback(() => {
+    exportBackup()
+    setLastBackedUp(formatDate(new Date()))
+  }, [setLastBackedUp])
+
+  const handleImport = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImporting(true)
+    setImportError(null)
+    const result = await importBackup(file)
+    if (result.ok) {
+      window.location.reload()
+    } else {
+      setImportError(result.error ?? 'Something went wrong.')
+      setImporting(false)
+    }
+    e.target.value = ''
+  }, [])
 
   const activeHabits = habits.filter((h) => h.active)
   const isCustom = !PRESETS.includes(accentColor)
@@ -164,8 +188,68 @@ export default function Settings({ onBack }: Props) {
           </div>
         )}
 
-        <p className="text-xs mt-4" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-xs mt-4 mb-8" style={{ color: 'var(--text-secondary)' }}>
           {isPro ? `${activeHabits.length} habits` : `${activeHabits.length}/${FREE_HABIT_LIMIT} habits — upgrade for unlimited`}
+        </p>
+
+        {/* Backup & Restore */}
+        <p className="text-xs font-medium mb-3" style={{ color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
+          BACKUP & RESTORE
+        </p>
+        <div
+          className="rounded-xl px-4 py-4 mb-2"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Your data</p>
+          <p className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>
+            {lastBackedUp
+              ? `Last backup: ${daysSinceBackup(lastBackedUp) === 0 ? 'today' : `${daysSinceBackup(lastBackedUp)} days ago`}`
+              : 'No backup yet — save one to protect your data'}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleExport}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+              style={{
+                backgroundColor: 'var(--accent)',
+                color: '#000',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Create backup
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border)',
+                cursor: importing ? 'default' : 'pointer',
+                opacity: importing ? 0.6 : 1,
+              }}
+            >
+              {importing ? 'Restoring…' : 'Restore backup'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              style={{ display: 'none' }}
+            />
+          </div>
+
+          {importError && (
+            <p className="text-xs mt-3" style={{ color: '#ff7b72' }}>{importError}</p>
+          )}
+        </div>
+
+        <p className="text-xs pb-8" style={{ color: 'var(--text-secondary)' }}>
+          Save the file to iCloud Drive or Google Drive. Restoring will replace all current data.
         </p>
       </div>
 

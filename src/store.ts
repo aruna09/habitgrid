@@ -25,7 +25,9 @@ interface HabitStore {
   accentColor: string
   userName: string
   isPro: boolean
+  lastBackedUp: string | null
   setIsPro: (value: boolean) => void
+  setLastBackedUp: (date: string) => void
   addHabit: (name: string, notes?: string) => void
   deleteHabit: (id: string) => void
   reorderHabits: (habits: Habit[]) => void
@@ -90,7 +92,9 @@ export const useStore = create<HabitStore>()(
       accentColor: '#39d353',
       userName: '',
       isPro: false,
+      lastBackedUp: null,
       setIsPro: (value) => set({ isPro: value }),
+      setLastBackedUp: (date) => set({ lastBackedUp: date }),
 
       addHabit: (name, notes) => {
         const habit: Habit = {

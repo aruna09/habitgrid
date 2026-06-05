@@ -7,6 +7,7 @@ import AddHabitModal from './components/AddHabitModal'
 import SplashScreen from './components/SplashScreen'
 import ConsolidatedView from './components/ConsolidatedView'
 import UpgradeModal from './components/UpgradeModal'
+import { exportBackup, daysSinceBackup } from './utils/backup'
 
 type Screen = 'grid' | 'settings' | 'profile' | 'consolidated'
 type Period = 'current' | number
@@ -112,14 +113,18 @@ function HabitCard({
 }
 
 export default function App() {
-  const { habits, accentColor, userName, isPro } = useStore()
+  const { habits, accentColor, userName, isPro, lastBackedUp, setLastBackedUp } = useStore()
   const [screen, setScreen] = useState<Screen>('grid')
   const [period, setPeriod] = useState<Period>('current')
   const [menuOpen, setMenuOpen] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [dismissedBackupBanner, setDismissedBackupBanner] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const backupDays = daysSinceBackup(lastBackedUp)
+  const showBackupBanner = !dismissedBackupBanner && habits.length > 0 && (lastBackedUp === null || (backupDays !== null && backupDays >= 90))
 
   const activeHabits = habits.filter((h) => h.active)
   const currentYear = new Date().getFullYear()
@@ -257,6 +262,36 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* Backup reminder banner */}
+      {showBackupBanner && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 mx-4 mt-3 rounded-xl text-sm"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, color: 'var(--accent)' }}>
+            <path d="M8 2v7M5 6l3-3 3 3M3 11v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{ flex: 1, color: 'var(--text-secondary)' }}>
+            {lastBackedUp === null ? 'No backup yet — protect your data' : `Last backup ${backupDays} days ago`}
+          </span>
+          <button
+            onClick={() => { exportBackup(); setLastBackedUp(formatDate(new Date())); setDismissedBackupBanner(true) }}
+            className="text-xs font-medium px-2 py-1 rounded-md"
+            style={{ backgroundColor: 'var(--accent)', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          >
+            Back up
+          </button>
+          <button
+            onClick={() => setDismissedBackupBanner(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px', flexShrink: 0 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {activeHabits.length > 0 ? (
         <div className="flex flex-col gap-5 px-4 pb-24">
