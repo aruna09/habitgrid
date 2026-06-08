@@ -19,16 +19,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const base = process.env.DODO_TEST_MODE === 'true' ? 'test.dodopayments.com' : 'live.dodopayments.com'
-    const url = `https://${base}/v1/licenses/${encodeURIComponent(licenseKey)}`
-    console.log('[verify-license] calling:', url)
-    console.log('[verify-license] api key present:', !!apiKey, 'prefix:', apiKey.slice(0, 8))
+    const url = `https://${base}/licenses/validate`
+    console.log('[verify-license] calling POST', url)
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ license_key: licenseKey }),
     })
 
     const raw = await response.text()
