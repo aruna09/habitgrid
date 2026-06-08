@@ -7,7 +7,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { key } = req.query
   if (!key || typeof key !== 'string' || key.trim().length === 0) {
-    return res.status(400).json({ valid: false, error: 'Missing order ID' })
+    return res.status(400).json({ valid: false, error: 'Missing license key' })
   }
 
   const apiKey = process.env.DODO_API_KEY
@@ -15,11 +15,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Server misconfigured' })
   }
 
-  const orderId = key.trim()
+  const licenseKey = key.trim()
 
   try {
     const response = await fetch(
-      `https://api.dodopayments.com/v1/payments/${encodeURIComponent(orderId)}`,
+      `https://api.dodopayments.com/v1/licenses/${encodeURIComponent(licenseKey)}`,
       {
         method: 'GET',
         headers: {
@@ -30,17 +30,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     )
 
     if (!response.ok) {
-      return res.status(200).json({ valid: false, error: 'Order not found. Check your order ID and try again.' })
+      return res.status(200).json({ valid: false, error: 'Invalid license key. Check and try again.' })
     }
 
     const data = await response.json()
-
-    // Valid if payment status is succeeded
-    const status = data?.status
-    const valid = status === 'succeeded'
+    const valid = data?.status === 'active'
 
     if (!valid) {
-      return res.status(200).json({ valid: false, error: `Payment status: ${status ?? 'unknown'}` })
+      return res.status(200).json({ valid: false, error: `License status: ${data?.status ?? 'unknown'}` })
     }
 
     return res.status(200).json({ valid: true })
