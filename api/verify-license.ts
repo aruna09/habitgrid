@@ -12,36 +12,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const apiKey = process.env.DODO_API_KEY
   if (!apiKey) {
-    return res.status(500).json({ error: 'Server misconfigured' })
+    return res.status(500).json({ valid: false, error: 'DODO_API_KEY not set' })
   }
 
   const licenseKey = key.trim()
 
   try {
-    const response = await fetch(
-      `https://api.dodopayments.com/v1/licenses/${encodeURIComponent(licenseKey)}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const url = `https://api.dodopayments.com/v1/licenses/${encodeURIComponent(licenseKey)}`
+    console.log('[verify-license] calling:', url)
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const raw = await response.text()
+    console.log('[verify-license] status:', response.status, 'body:', raw)
 
     if (!response.ok) {
-      return res.status(200).json({ valid: false, error: 'Invalid license key. Check and try again.' })
+      return res.status(200).json({ valid: false, error: `Dodo returned ${response.status}: ${raw}` })
     }
 
-    const data = await response.json()
+    const data = JSON.parse(raw)
     const valid = data?.status === 'active'
 
-    if (!valid) {
-      return res.status(200).json({ valid: false, error: `License status: ${data?.status ?? 'unknown'}` })
-    }
-
-    return res.status(200).json({ valid: true })
-  } catch {
-    return res.status(500).json({ valid: false, error: 'Could not reach verification server' })
+    return res.status(200).json({ valid, dodostatus: data?.status })
+  } catch (err) {
+    console.error('[verify-license] fetch error:', err)
+    return res.status(500).json({ valid: false, error: String(err) })
   }
 }
