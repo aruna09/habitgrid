@@ -102,7 +102,7 @@ export default function UpgradeModal({ onClose, onUpgrade }: Props) {
           Unlock Pro — $4.99
         </button>
         <p className="text-xs text-center mt-2" style={{ color: 'var(--text-secondary)' }}>
-          After payment, save your license key — you'll need it to restore Pro on a new device.
+          After payment, save your order ID from the receipt — you'll need it to restore Pro on a new device.
         </p>
 
         <button
