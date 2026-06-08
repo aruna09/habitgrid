@@ -21,13 +21,39 @@ const PRESETS = [
 const DEFAULT_COLOR = '#39d353'
 
 export default function Settings({ onBack }: Props) {
-  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor, isPro, lastBackedUp, setLastBackedUp } = useStore()
+  const { habits, accentColor, deleteHabit, reorderHabits, setAccentColor, isPro, licenseKey, setIsPro, setLicenseKey, lastBackedUp, setLastBackedUp } = useStore()
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [keyInput, setKeyInput] = useState('')
+  const [keyStatus, setKeyStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [keyError, setKeyError] = useState<string | null>(null)
+
+  const handleActivateKey = useCallback(async () => {
+    const trimmed = keyInput.trim()
+    if (!trimmed) return
+    setKeyStatus('loading')
+    setKeyError(null)
+    try {
+      const res = await fetch(`/api/verify-license?key=${encodeURIComponent(trimmed)}`)
+      const data = await res.json()
+      if (data.valid) {
+        setIsPro(true)
+        setLicenseKey(trimmed)
+        setKeyInput('')
+        setKeyStatus('idle')
+      } else {
+        setKeyError(data.error ?? 'Invalid license key. Double-check and try again.')
+        setKeyStatus('error')
+      }
+    } catch {
+      setKeyError('Could not reach the server. Check your connection.')
+      setKeyStatus('error')
+    }
+  }, [keyInput, setIsPro, setLicenseKey])
 
   const handleExport = useCallback(() => {
     exportBackup()
@@ -87,6 +113,78 @@ export default function Settings({ onBack }: Props) {
       </header>
 
       <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
+
+        {/* Pro status */}
+        <p className="text-xs font-medium mb-3" style={{ color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
+          HABITGRID PRO
+        </p>
+        <div
+          className="rounded-xl px-4 py-4 mb-6"
+          style={{ backgroundColor: 'var(--surface)', border: `1px solid ${isPro ? 'var(--accent)' : 'var(--border)'}` }}
+        >
+          {isPro ? (
+            <div className="flex items-center gap-3">
+              <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8l3.5 3.5L13 4" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Pro active</p>
+                {licenseKey && (
+                  <p className="text-xs mt-0.5 font-mono" style={{ color: 'var(--text-secondary)' }}>
+                    {licenseKey.slice(0, 8)}••••••••
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Have a license key?</p>
+              <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+                Enter the key from your purchase receipt to unlock Pro.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={keyInput}
+                  onChange={(e) => { setKeyInput(e.target.value); setKeyStatus('idle'); setKeyError(null) }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleActivateKey()}
+                  placeholder="Paste license key"
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: '8px', fontSize: '13px',
+                    backgroundColor: 'var(--bg)', border: `1px solid ${keyStatus === 'error' ? '#ff7b72' : 'var(--border)'}`,
+                    color: 'var(--text-primary)', outline: 'none', fontFamily: '"DM Mono", monospace',
+                  }}
+                />
+                <button
+                  onClick={handleActivateKey}
+                  disabled={keyStatus === 'loading' || !keyInput.trim()}
+                  style={{
+                    padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                    backgroundColor: 'var(--accent)', color: '#000', border: 'none',
+                    cursor: keyStatus === 'loading' || !keyInput.trim() ? 'default' : 'pointer',
+                    opacity: keyStatus === 'loading' || !keyInput.trim() ? 0.6 : 1,
+                    flexShrink: 0,
+                  }}
+                >
+                  {keyStatus === 'loading' ? '…' : 'Activate'}
+                </button>
+              </div>
+              {keyError && (
+                <p className="text-xs mt-2" style={{ color: '#ff7b72' }}>{keyError}</p>
+              )}
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="text-xs mt-3 block"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', padding: 0 }}
+              >
+                Don't have a key? Unlock Pro →
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Appearance */}
         <p className="text-xs font-medium mb-3" style={{ color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
           APPEARANCE

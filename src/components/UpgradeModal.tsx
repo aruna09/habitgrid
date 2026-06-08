@@ -85,7 +85,11 @@ export default function UpgradeModal({ onClose, onUpgrade }: Props) {
 
         {/* CTA */}
         <button
-          onClick={onUpgrade}
+          onClick={() => {
+            const url = import.meta.env.VITE_DODO_CHECKOUT_URL
+            if (url) window.open(url, '_blank')
+            onUpgrade()
+          }}
           className="w-full py-4 rounded-xl text-base font-semibold"
           style={{
             backgroundColor: 'var(--accent)',
@@ -97,6 +101,9 @@ export default function UpgradeModal({ onClose, onUpgrade }: Props) {
         >
           Unlock Pro — $4.99
         </button>
+        <p className="text-xs text-center mt-2" style={{ color: 'var(--text-secondary)' }}>
+          After payment, save your license key — you'll need it to restore Pro on a new device.
+        </p>
 
         <button
           onClick={onClose}
