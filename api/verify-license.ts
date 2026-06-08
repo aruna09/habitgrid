@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const licenseKey = key.trim()
 
   try {
-    const url = `https://api.dodopayments.com/v1/licenses/${encodeURIComponent(licenseKey)}`
+    const url = `https://live.dodopayments.com/v1/licenses/${encodeURIComponent(licenseKey)}`
     console.log('[verify-license] calling:', url)
 
     const response = await fetch(url, {
