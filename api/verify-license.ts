@@ -41,8 +41,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = JSON.parse(raw)
     console.log('[verify-license] parsed:', JSON.stringify(data))
 
-    // Dodo returns { valid: true/false }
-    const valid = data?.valid === true
+    // In test mode, treat any lic_ key that Dodo recognises (200 response) as valid
+    // In live mode, check data.valid strictly
+    const testMode = process.env.DODO_TEST_MODE === 'true'
+    const valid = testMode ? response.ok : data?.valid === true
 
     if (!valid) {
       return res.status(200).json({ valid: false, error: 'License key not recognised. Make sure you copied it correctly.' })
