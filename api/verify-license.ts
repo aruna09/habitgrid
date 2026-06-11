@@ -39,9 +39,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const data = JSON.parse(raw)
-    const valid = data?.status === 'active'
+    console.log('[verify-license] parsed:', JSON.stringify(data))
 
-    return res.status(200).json({ valid, dodostatus: data?.status })
+    // Dodo returns { valid: true/false }
+    const valid = data?.valid === true
+
+    if (!valid) {
+      return res.status(200).json({ valid: false, error: 'License key not recognised. Make sure you copied it correctly.' })
+    }
+
+    return res.status(200).json({ valid: true })
   } catch (err) {
     console.error('[verify-license] fetch error:', err)
     return res.status(500).json({ valid: false, error: String(err) })
