@@ -101,14 +101,19 @@ export const useStore = create<HabitStore>()(
       setLastBackedUp: (date) => set({ lastBackedUp: date }),
 
       addHabit: (name, notes) => {
-        const habit: Habit = {
-          id: `h${Date.now()}`,
-          name: name.trim(),
-          notes,
-          createdAt: new Date().toISOString(),
-          active: true,
-        }
-        set((s) => ({ habits: [...s.habits, habit] }))
+        set((s) => {
+          const activeCount = s.habits.filter((h) => h.active).length
+          // Enforce free tier cap at the store level — not just the UI
+          if (!s.isPro && activeCount >= FREE_HABIT_LIMIT) return s
+          const habit: Habit = {
+            id: `h${Date.now()}`,
+            name: name.trim(),
+            notes,
+            createdAt: new Date().toISOString(),
+            active: true,
+          }
+          return { habits: [...s.habits, habit] }
+        })
       },
 
       deleteHabit: (id) => {

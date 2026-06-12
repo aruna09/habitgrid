@@ -130,10 +130,11 @@ export default function App() {
   const currentYear = new Date().getFullYear()
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3]
 
-  // Sync accent color to CSS variables
+  // Sync accent color to CSS variables — validate hex first to prevent CSS injection
+  const safeAccent = /^#[0-9a-fA-F]{6}$/.test(accentColor) ? accentColor : '#39d353'
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent', accentColor)
-    document.documentElement.style.setProperty('--accent-bright', accentColor)
+    document.documentElement.style.setProperty('--accent', safeAccent)
+    document.documentElement.style.setProperty('--accent-bright', safeAccent)
   }, [accentColor])
 
   // Close menu on outside click
