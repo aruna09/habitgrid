@@ -346,9 +346,34 @@ export default function Settings({ onBack }: Props) {
           )}
         </div>
 
-        <p className="text-xs pb-8" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-xs pb-4" style={{ color: 'var(--text-secondary)' }}>
           Save the file to iCloud Drive or Google Drive. Restoring will replace all current data.
         </p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-center gap-4 pb-10 pt-4">
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+          >
+            Privacy Policy
+          </a>
+          <span style={{ color: 'var(--border)' }}>·</span>
+          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>v1.0</span>
+          <span style={{ color: 'var(--border)' }}>·</span>
+          <a
+            href="https://github.com/aruna09/habitgrid"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+          >
+            Open source
+          </a>
+        </div>
       </div>
 
       {showUpgrade && (
