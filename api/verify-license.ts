@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-// Valid Dodo license keys always start with lic_ followed by alphanumeric chars
-const LICENSE_KEY_RE = /^lic_[A-Za-z0-9]{8,64}$/
+// Validate license key is a safe string — alphanumeric plus common separators, 8–128 chars
+const LICENSE_KEY_RE = /^[A-Za-z0-9_\-]{8,128}$/
 
 // Simple in-process rate limiter — resets per cold start (good enough for serverless)
 const attempts = new Map<string, { count: number; resetAt: number }>()

@@ -142,7 +142,7 @@ export default function Settings({ onBack }: Props) {
             <div>
               <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Already purchased?</p>
               <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
-                Enter the license key from your purchase email (starts with <span style={{ fontFamily: '"DM Mono", monospace' }}>lic_</span>).
+                Enter the license key from your purchase receipt email.
               </p>
               <div className="flex gap-2">
                 <input
@@ -150,7 +150,7 @@ export default function Settings({ onBack }: Props) {
                   value={keyInput}
                   onChange={(e) => { setKeyInput(e.target.value); setKeyStatus('idle'); setKeyError(null) }}
                   onKeyDown={(e) => e.key === 'Enter' && handleActivateKey()}
-                  placeholder="lic_..."
+                  placeholder="Paste license key"
                   style={{
                     flex: 1, padding: '8px 12px', borderRadius: '8px', fontSize: '13px',
                     backgroundColor: 'var(--bg)', border: `1px solid ${keyStatus === 'error' ? '#ff7b72' : 'var(--border)'}`,
