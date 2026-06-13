@@ -61,8 +61,8 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
               <rect x="20" y="18" width="4" height="4" rx="1" fill="currentColor" opacity="0.4"/>
             </svg>
           }
-          label="Grid fills as you show up"
-          detail="Every day you log turns a square brighter — a whole year of effort in one glance."
+          label="Add a habit, watch it grow"
+          detail="Name any daily habit — it gets its own grid that lights up brighter with every check-in."
         />
 
         <FlipCard accentColor={accentColor}
@@ -75,8 +75,8 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
               <line x1="4" y1="20" x2="24" y2="20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.2"/>
             </svg>
           }
-          label="One tap to log today"
-          detail="Tap the box next to a habit. Forgot last night? Yesterday's cell is fair game too."
+          label="Log it in one tap"
+          detail="Tap once and today's square lights up. Forgot last night? Yesterday's still fair game."
         />
 
         <FlipCard accentColor={accentColor}
@@ -86,8 +86,8 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
               <path d="M5 18v4a1.5 1.5 0 001.5 1.5h15A1.5 1.5 0 0023 22v-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.5"/>
             </svg>
           }
-          label="Share as a PNG"
-          detail="Export a clean image of your grid and post it anywhere — receipts for your streak."
+          label="Flex your grid"
+          detail="Export it as a crisp image and post your streak anywhere — receipts for the work you put in."
         />
 
         <FlipCard accentColor={accentColor}
@@ -100,8 +100,8 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
               <line x1="14" y1="14" x2="17" y2="14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             </svg>
           }
-          label="Track streaks & active days"
-          detail="Current streak, longest streak, and total active days — live on every habit card."
+          label="Keep the streak alive"
+          detail="Current streak, longest run, and total active days — counting up on every card."
         />
 
         {/* Pro card — spans full width, static */}
