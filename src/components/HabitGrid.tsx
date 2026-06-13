@@ -72,7 +72,7 @@ export default function HabitGrid({ habitId, period, accentColor, onToggle }: Pr
     <div
       ref={scrollRef}
       className="overflow-x-auto scrollbar-none"
-      style={{ WebkitOverflowScrolling: 'touch' }}
+      style={{ WebkitOverflowScrolling: 'touch', minWidth: 0, maxWidth: '100%' }}
     >
       <div className="inline-flex gap-0">
         {/* Day labels */}

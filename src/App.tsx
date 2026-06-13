@@ -46,57 +46,58 @@ function HabitCard({
 
   return (
     <div
-      className="rounded-xl px-4 pt-4 pb-3"
+      className="rounded-xl px-4 pt-4 pb-3 min-w-0 max-w-full overflow-hidden"
       style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
     >
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="flex items-center gap-2 min-w-0">
-          {period === 'current' && (
-            <button
-              onClick={() => toggleLog(today, habitId)}
-              aria-label={`Toggle ${name} for today`}
-              data-tour={isFirst ? 'log-checkbox' : undefined}
-              style={{
-                flexShrink: 0,
-                width: '22px',
-                height: '22px',
-                borderRadius: '5px',
-                backgroundColor: checked ? 'var(--accent)' : 'transparent',
-                border: checked ? '2px solid var(--accent)' : '2px solid var(--border-muted)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background-color 0.1s, border-color 0.1s',
-              }}
-            >
-              {checked && (
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6L4.5 8.5L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </button>
-          )}
-          <span
-            className="text-sm font-semibold truncate"
-            style={{ color: checked ? 'var(--accent)' : 'var(--text-primary)' }}
+      {/* Name + checkbox on its own row so long titles never truncate early */}
+      <div className="flex items-center gap-2 mb-3 min-w-0">
+        {period === 'current' && (
+          <button
+            onClick={() => toggleLog(today, habitId)}
+            aria-label={`Toggle ${name} for today`}
+            data-tour={isFirst ? 'log-checkbox' : undefined}
+            style={{
+              flexShrink: 0,
+              width: '22px',
+              height: '22px',
+              borderRadius: '5px',
+              backgroundColor: checked ? 'var(--accent)' : 'transparent',
+              border: checked ? '2px solid var(--accent)' : '2px solid var(--border-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'background-color 0.1s, border-color 0.1s',
+            }}
           >
-            {name}
-          </span>
+            {checked && (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6L4.5 8.5L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+        )}
+        <span
+          className="text-sm font-semibold truncate"
+          style={{ color: checked ? 'var(--accent)' : 'var(--text-primary)' }}
+        >
+          {name}
+        </span>
+      </div>
+
+      {/* Stats row */}
+      <div className="flex items-center gap-6 mb-3">
+        <div>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Active days</p>
+          <p className="text-sm font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>{activeDays}</p>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="text-right">
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Active days</p>
-            <p className="text-sm font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>{activeDays}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Cur streak</p>
-            <p className="text-sm font-semibold font-mono" style={{ color: 'var(--accent)' }}>{currentStreak}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Max streak</p>
-            <p className="text-sm font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>{maxStreak}</p>
-          </div>
+        <div>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Cur streak</p>
+          <p className="text-sm font-semibold font-mono" style={{ color: 'var(--accent)' }}>{currentStreak}</p>
+        </div>
+        <div>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Max streak</p>
+          <p className="text-sm font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>{maxStreak}</p>
         </div>
       </div>
 
@@ -344,7 +345,7 @@ export default function App() {
       )}
 
       {activeHabits.length > 0 ? (
-        <div className="flex flex-col gap-5 px-4 pb-24">
+        <div className="flex flex-col gap-5 px-4 pb-24 min-w-0">
           {activeHabits.map((habit, i) => (
             <HabitCard
               key={habit.id}
