@@ -6,6 +6,48 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* iOS zooms the page when a focused input has font-size < 16px.
+   Force a 16px floor so the viewport never jumps on focus. */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* ── Flip cards (onboarding) ───────────────────────────── */
+.flip-card {
+  perspective: 1000px;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
 :root {
   --bg: #0D1117;
   --surface: #161B22;

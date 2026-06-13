@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 interface Props {
@@ -35,13 +36,15 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
         <p className="text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
           GitHub-style grids for your daily habits
         </p>
+        <p className="text-[11px] text-center mt-2" style={{ color: 'var(--text-secondary)', opacity: 0.7 }}>
+          Tap a card to learn more
+        </p>
       </div>
 
-      {/* Feature grid — 2 columns */}
+      {/* Feature grid — 2 columns of flip cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1 }}>
 
-        {/* 1 */}
-        <FeatureCard accentColor={accentColor}
+        <FlipCard accentColor={accentColor}
           icon={
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <rect x="2" y="6" width="4" height="4" rx="1" fill="currentColor" opacity="0.2"/>
@@ -59,10 +62,10 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
             </svg>
           }
           label="Grid fills as you show up"
+          detail="Every day you log turns a square brighter — a whole year of effort in one glance."
         />
 
-        {/* 2 */}
-        <FeatureCard accentColor={accentColor}
+        <FlipCard accentColor={accentColor}
           icon={
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <rect x="4" y="4" width="10" height="10" rx="2.5" stroke="currentColor" strokeWidth="1.8" fill="none"/>
@@ -73,10 +76,10 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
             </svg>
           }
           label="One tap to log today"
+          detail="Tap the box next to a habit. Forgot last night? Yesterday's cell is fair game too."
         />
 
-        {/* 3 */}
-        <FeatureCard accentColor={accentColor}
+        <FlipCard accentColor={accentColor}
           icon={
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <path d="M14 4v12M10 8l4-4 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -84,10 +87,10 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
             </svg>
           }
           label="Share as a PNG"
+          detail="Export a clean image of your grid and post it anywhere — receipts for your streak."
         />
 
-        {/* 4 */}
-        <FeatureCard accentColor={accentColor}
+        <FlipCard accentColor={accentColor}
           icon={
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <path d="M4 14l-.01 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
@@ -98,9 +101,10 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
             </svg>
           }
           label="Track streaks & active days"
+          detail="Current streak, longest streak, and total active days — live on every habit card."
         />
 
-        {/* 5 — spans full width */}
+        {/* Pro card — spans full width, static */}
         <div
           className="col-span-2 flex items-center gap-4 px-4 py-4 rounded-xl"
           style={{ backgroundColor: 'var(--surface)', border: `1px solid ${accentColor}33` }}
@@ -141,16 +145,47 @@ export default function OnboardingScreen({ onDone, accentColor }: Props) {
   )
 }
 
-function FeatureCard({ icon, label, accentColor }: { icon: ReactNode; label: string; accentColor: string }) {
+function FlipCard({
+  icon,
+  label,
+  detail,
+  accentColor,
+}: {
+  icon: ReactNode
+  label: string
+  detail: string
+  accentColor: string
+}) {
+  const [flipped, setFlipped] = useState(false)
   return (
     <div
-      className="flex flex-col items-center justify-center gap-3 px-3 py-5 rounded-xl text-center"
-      style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+      className={`flip-card${flipped ? ' flipped' : ''}`}
+      style={{ height: 132 }}
+      onClick={() => setFlipped((f) => !f)}
+      role="button"
+      aria-label={`${label}. Tap for details.`}
     >
-      <div style={{ color: accentColor }}>{icon}</div>
-      <p className="text-xs font-medium leading-snug" style={{ color: 'var(--text-primary)' }}>
-        {label}
-      </p>
+      <div className="flip-card-inner">
+        {/* Front */}
+        <div
+          className="flip-card-face px-3 py-5 rounded-xl text-center gap-3"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <div style={{ color: accentColor }}>{icon}</div>
+          <p className="text-xs font-medium leading-snug" style={{ color: 'var(--text-primary)' }}>
+            {label}
+          </p>
+        </div>
+        {/* Back */}
+        <div
+          className="flip-card-face flip-card-back px-3 py-4 rounded-xl text-center"
+          style={{ backgroundColor: 'var(--surface)', border: `1px solid ${accentColor}55` }}
+        >
+          <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+            {detail}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
