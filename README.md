@@ -2,7 +2,7 @@
 
 A GitHub/LeetCode-style habit tracker PWA. Build streaks, visualise consistency, and share your progress — all stored locally, no account needed.
 
-🔗 **[habitgrid.vercel.app](https://habitgrid.vercel.app)**
+🔗 **[habitgrid-steel.vercel.app](https://habitgrid-steel.vercel.app)**
 
 <p align="center">
   <img src="screenshots/1-splash.png" width="200" alt="Splash screen" />

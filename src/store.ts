@@ -27,9 +27,11 @@ interface HabitStore {
   isPro: boolean
   licenseKey: string | null
   lastBackedUp: string | null
+  hasSeenOnboarding: boolean
   setIsPro: (value: boolean) => void
   setLicenseKey: (key: string) => void
   setLastBackedUp: (date: string) => void
+  setHasSeenOnboarding: () => void
   addHabit: (name: string, notes?: string) => void
   deleteHabit: (id: string) => void
   reorderHabits: (habits: Habit[]) => void
@@ -96,9 +98,11 @@ export const useStore = create<HabitStore>()(
       isPro: false,
       licenseKey: null,
       lastBackedUp: null,
+      hasSeenOnboarding: false,
       setIsPro: (value) => set({ isPro: value }),
       setLicenseKey: (key) => set({ licenseKey: key }),
       setLastBackedUp: (date) => set({ lastBackedUp: date }),
+      setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
 
       addHabit: (name, notes) => {
         set((s) => {

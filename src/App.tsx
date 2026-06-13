@@ -7,6 +7,7 @@ import AddHabitModal from './components/AddHabitModal'
 import SplashScreen from './components/SplashScreen'
 import ConsolidatedView from './components/ConsolidatedView'
 import UpgradeModal from './components/UpgradeModal'
+import OnboardingScreen from './components/OnboardingScreen'
 import { exportBackup, daysSinceBackup } from './utils/backup'
 
 type Screen = 'grid' | 'settings' | 'profile' | 'consolidated'
@@ -113,7 +114,7 @@ function HabitCard({
 }
 
 export default function App() {
-  const { habits, accentColor, userName, isPro, lastBackedUp, setLastBackedUp } = useStore()
+  const { habits, accentColor, userName, isPro, lastBackedUp, setLastBackedUp, hasSeenOnboarding, setHasSeenOnboarding } = useStore()
   const [screen, setScreen] = useState<Screen>('grid')
   const [period, setPeriod] = useState<Period>('current')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -151,6 +152,10 @@ export default function App() {
 
   if (showSplash) {
     return <SplashScreen onDone={() => setShowSplash(false)} accentColor={accentColor} />
+  }
+
+  if (!hasSeenOnboarding) {
+    return <OnboardingScreen onDone={setHasSeenOnboarding} accentColor={safeAccent} />
   }
 
   if (screen === 'settings') {
