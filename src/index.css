@@ -18,6 +18,12 @@ input, textarea, select {
   font-size: 16px;
 }
 
+/* ── Guided tour spotlight pulse ───────────────────────── */
+@keyframes tour-pulse {
+  0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.66), 0 0 0 0 rgba(57,211,83,0.0); }
+  50%      { box-shadow: 0 0 0 9999px rgba(0,0,0,0.66), 0 0 0 7px rgba(57,211,83,0.28); }
+}
+
 /* ── Flip cards (onboarding) ───────────────────────────── */
 .flip-card {
   perspective: 1000px;

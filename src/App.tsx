@@ -8,6 +8,7 @@ import SplashScreen from './components/SplashScreen'
 import ConsolidatedView from './components/ConsolidatedView'
 import UpgradeModal from './components/UpgradeModal'
 import OnboardingScreen from './components/OnboardingScreen'
+import { Coachmark, type TourStep } from './components/GuidedTour'
 import { exportBackup, daysSinceBackup } from './utils/backup'
 
 type Screen = 'grid' | 'settings' | 'profile' | 'consolidated'
@@ -29,12 +30,14 @@ function HabitCard({
   createdAt,
   period,
   accentColor,
+  isFirst,
 }: {
   habitId: string
   name: string
   createdAt: string
   period: Period
   accentColor: string
+  isFirst?: boolean
 }) {
   const { logs, toggleLog } = useStore()
   const { activeDays, currentStreak, maxStreak } = getHabitStats(logs, habitId, period)
@@ -52,6 +55,7 @@ function HabitCard({
             <button
               onClick={() => toggleLog(today, habitId)}
               aria-label={`Toggle ${name} for today`}
+              data-tour={isFirst ? 'log-checkbox' : undefined}
               style={{
                 flexShrink: 0,
                 width: '22px',
@@ -114,7 +118,7 @@ function HabitCard({
 }
 
 export default function App() {
-  const { habits, accentColor, userName, isPro, lastBackedUp, setLastBackedUp, hasSeenOnboarding, setHasSeenOnboarding } = useStore()
+  const { habits, logs, accentColor, userName, isPro, lastBackedUp, setLastBackedUp, hasSeenOnboarding, setHasSeenOnboarding } = useStore()
   const [screen, setScreen] = useState<Screen>('grid')
   const [period, setPeriod] = useState<Period>('current')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -122,6 +126,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [dismissedBackupBanner, setDismissedBackupBanner] = useState(false)
+  // Guided tour: 0 = inactive, 1 = create a habit, 2 = log progress
+  const [tourStep, setTourStep] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const backupDays = daysSinceBackup(lastBackedUp)
@@ -150,12 +156,28 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
+  // Guided tour: advance from "create a habit" to "log progress" once a habit exists
+  useEffect(() => {
+    if (tourStep === 1 && activeHabits.length > 0) setTourStep(2)
+  }, [tourStep, activeHabits.length])
+
+  // Guided tour: finish once the user logs anything for today
+  const todayStr = formatDate(new Date())
+  useEffect(() => {
+    if (tourStep === 2 && activeHabits.some((h) => logs[todayStr]?.[h.id])) setTourStep(0)
+  }, [tourStep, logs, todayStr])
+
   if (showSplash) {
     return <SplashScreen onDone={() => setShowSplash(false)} accentColor={accentColor} />
   }
 
   if (!hasSeenOnboarding) {
-    return <OnboardingScreen onDone={setHasSeenOnboarding} accentColor={safeAccent} />
+    return (
+      <OnboardingScreen
+        onDone={() => { setHasSeenOnboarding(); setTourStep(1) }}
+        accentColor={safeAccent}
+      />
+    )
   }
 
   if (screen === 'settings') {
@@ -301,7 +323,7 @@ export default function App() {
 
       {activeHabits.length > 0 ? (
         <div className="flex flex-col gap-5 px-4 pb-24">
-          {activeHabits.map((habit) => (
+          {activeHabits.map((habit, i) => (
             <HabitCard
               key={habit.id}
               habitId={habit.id}
@@ -309,6 +331,7 @@ export default function App() {
               createdAt={habit.createdAt}
               period={period}
               accentColor={accentColor}
+              isFirst={i === 0}
             />
           ))}
           {activeHabits.length >= 2 && (
@@ -385,8 +408,31 @@ export default function App() {
           onUpgrade={() => setShowUpgrade(false)}
         />
       )}
+
+      {tourStep > 0 && !showAddModal && !showUpgrade && !menuOpen && (
+        <Coachmark
+          step={tourStep === 1 ? TOUR_STEP_CREATE : TOUR_STEP_LOG}
+          onSkip={() => setTourStep(0)}
+        />
+      )}
     </div>
   )
+}
+
+const TOUR_STEP_CREATE: TourStep = {
+  selector: '[data-tour="add-fab"]',
+  title: 'Create your first habit',
+  body: 'Tap the + button and name something you want to do every day.',
+  index: 1,
+  total: 2,
+}
+
+const TOUR_STEP_LOG: TourStep = {
+  selector: '[data-tour="log-checkbox"]',
+  title: 'Log today',
+  body: 'Tap the box to mark it done — watch the square light up.',
+  index: 2,
+  total: 2,
 }
 
 function FAB({ onPress }: { onPress: () => void }) {
@@ -394,6 +440,7 @@ function FAB({ onPress }: { onPress: () => void }) {
     <button
       onClick={onPress}
       aria-label="Add habit"
+      data-tour="add-fab"
       style={{
         position: 'fixed',
         bottom: '28px',
