@@ -14,7 +14,17 @@ export interface TourStep {
  * user can actually perform the highlighted action — the tour advances when
  * they do (driven by the parent).
  */
-export function Coachmark({ step, onSkip }: { step: TourStep; onSkip: () => void }) {
+export function Coachmark({
+  step,
+  onSkip,
+  onNext,
+  nextLabel = 'Next',
+}: {
+  step: TourStep
+  onSkip: () => void
+  onNext?: () => void
+  nextLabel?: string
+}) {
   const [rect, setRect] = useState<DOMRect | null>(null)
 
   useEffect(() => {
@@ -91,19 +101,38 @@ export function Coachmark({ step, onSkip }: { step: TourStep; onSkip: () => void
           <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: '"DM Mono", monospace' }}>
             {step.index} of {step.total}
           </span>
-          <button
-            onClick={onSkip}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              fontSize: 12,
-              cursor: 'pointer',
-              padding: '2px 4px',
-            }}
-          >
-            Skip tour
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button
+              onClick={onSkip}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                fontSize: 12,
+                cursor: 'pointer',
+                padding: '4px 8px',
+              }}
+            >
+              Skip tour
+            </button>
+            {onNext && (
+              <button
+                onClick={onNext}
+                style={{
+                  backgroundColor: 'var(--accent)',
+                  border: 'none',
+                  color: '#000',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '5px 12px',
+                  borderRadius: 7,
+                }}
+              >
+                {nextLabel}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -156,15 +156,34 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  // Guided tour: advance from "create a habit" to "log progress" once a habit exists
+  // Guided tour. Capture a baseline when each step begins so a *replay* (when
+  // habits already exist / today is already logged) doesn't auto-skip the step;
+  // auto-advance only on a genuine new action after the step started.
+  const todayStr = formatDate(new Date())
+  const tourBaseline = useRef<{ habits: number; logged: boolean }>({ habits: 0, logged: false })
   useEffect(() => {
-    if (tourStep === 1 && activeHabits.length > 0) setTourStep(2)
+    if (tourStep === 1) {
+      tourBaseline.current = { habits: activeHabits.length, logged: false }
+    } else if (tourStep === 2) {
+      tourBaseline.current = {
+        habits: activeHabits.length,
+        logged: activeHabits.some((h) => logs[todayStr]?.[h.id]),
+      }
+    }
+  }, [tourStep]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (tourStep === 1 && activeHabits.length > tourBaseline.current.habits) setTourStep(2)
   }, [tourStep, activeHabits.length])
 
-  // Guided tour: finish once the user logs anything for today
-  const todayStr = formatDate(new Date())
   useEffect(() => {
-    if (tourStep === 2 && activeHabits.some((h) => logs[todayStr]?.[h.id])) setTourStep(0)
+    if (
+      tourStep === 2 &&
+      !tourBaseline.current.logged &&
+      activeHabits.some((h) => logs[todayStr]?.[h.id])
+    ) {
+      setTourStep(0)
+    }
   }, [tourStep, logs, todayStr])
 
   if (showSplash) {
@@ -183,7 +202,10 @@ export default function App() {
   if (screen === 'settings') {
     return (
       <>
-        <Settings onBack={() => setScreen('grid')} />
+        <Settings
+          onBack={() => setScreen('grid')}
+          onReplayTour={() => { setScreen('grid'); setPeriod('current'); setTourStep(1) }}
+        />
         <FAB onPress={() => setShowAddModal(true)} />
         {showAddModal && (
           <AddHabitModal
@@ -413,6 +435,12 @@ export default function App() {
         <Coachmark
           step={tourStep === 1 ? TOUR_STEP_CREATE : TOUR_STEP_LOG}
           onSkip={() => setTourStep(0)}
+          onNext={
+            tourStep === 1
+              ? (activeHabits.length > 0 ? () => setTourStep(2) : undefined)
+              : () => setTourStep(0)
+          }
+          nextLabel={tourStep === 2 ? 'Done' : 'Next'}
         />
       )}
     </div>
